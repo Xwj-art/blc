@@ -1,8 +1,6 @@
 package BLC
 
 import (
-	"bytes"
-	"crypto/sha256"
 	"time"
 )
 
@@ -12,6 +10,7 @@ type Block struct {
 	PrevBlockHash []byte
 	Height        int64
 	Data          []byte
+	Nonce         int64
 }
 
 func NewBlock(height int64, prevBlockHash, data []byte) *Block {
@@ -22,19 +21,24 @@ func NewBlock(height int64, prevBlockHash, data []byte) *Block {
 		Height:        height,
 		Data:          data,
 	}
-	block.SetHash()
+	//block.SetHash()
+	pow := NewProofOfWork(&block)
+	hash, nonce := pow.Run()
+	block.Hash = hash
+	block.Nonce = int64(nonce)
 	return &block
 }
 
-func (b *Block) SetHash() {
-	timeStampBytes := IntToHex(b.TimeStamp)
-	heightBytes := IntToHex(b.Height)
-	blockBytes := bytes.Join([][]byte{
-		timeStampBytes,
-		heightBytes,
-		b.PrevBlockHash,
-		b.Data,
-	}, []byte{})
-	hash := sha256.Sum256(blockBytes)
-	b.Hash = hash[:]
-}
+//
+//func (b *Block) SetHash() {
+//	timeStampBytes := IntToHex(b.TimeStamp)
+//	heightBytes := IntToHex(b.Height)
+//	blockBytes := bytes.Join([][]byte{
+//		timeStampBytes,
+//		heightBytes,
+//		b.PrevBlockHash,
+//		b.Data,
+//	}, []byte{})
+//	hash := sha256.Sum256(blockBytes)
+//	b.Hash = hash[:]
+//}
